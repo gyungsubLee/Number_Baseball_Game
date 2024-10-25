@@ -4,123 +4,168 @@ import java.util.*;
 
 public class BaseballGame {
 
-    static int digitCount;
-    static int size = 3;
+    private Scanner sc;
+    private Random random;
 
     static StringBuilder result = new StringBuilder();
+
+    private  int size = 3;
+    private boolean continueProgram = true;
+
     static List<Integer>  answer = new ArrayList<>();
     private final Set<Integer>  checkUsedNumberOfAnswer = new HashSet<>();
-    private final Set<Integer>  checkUsedNumberOfInupt = new HashSet<>();  // 입력된 숫자를 저장할 Set (중복 방지)
+
+
+    public BaseballGame(Scanner sc , Random random) {
+        this.sc = sc;
+        this.random = random;
+    }
 
     /**
      *  Answer 생성: 재귀 구현
      *    종료 조건: cnt > size
-     */
-    private void generateRecursiveAnswer(int cnt, Random random){
+     */private void generateRecursiveAnswer(int cnt){
         if(cnt > size) return;
         while(true){
             int randomNumber = random.nextInt(9) + 1;
             if(!checkUsedNumberOfAnswer.contains(randomNumber)){
                 checkUsedNumberOfAnswer.add(randomNumber);
                 answer.add(randomNumber);
-                generateRecursiveAnswer(cnt+1, random);
+                generateRecursiveAnswer(cnt+1);
                 break;
             }
         }
     }
 
-    public void initializeConditions(Random random){
-        digitCount = 1;
-        result.setLength(0);
-        answer.clear();
-        checkUsedNumberOfAnswer.clear();
-        checkUsedNumberOfInupt.clear();
-    }
-
-    public void play(Scanner sc, Random random){
-        initializeConditions(random);
-
-        generateRecursiveAnswer(1, random);
-
-        System.out.println("< 게임을 시작합니다 >");
-
-        // System.out.print("자리수를 입력해 주세요");
-        // size = sc.nextInt();
-
-        while (digitCount <= 3) {
-
-            System.out.print("1~9 사이의 숫자를 입력하세요: ");
-
-            String input = sc.next();
-
-            // 입력값 유효성 검사
-            if (!isValidRangeByRegex(input)) {
-                System.out.println("유효하지 않은 입력입니다. 1~9 사이의 숫자를 입력하세요.");
-                continue;
-            }
-
-            // 형변환: String -> Integer
-            int inputNumber = Integer.parseInt(input);
-
-            // 중복 값 확인
-            if (isDuplicate(inputNumber)) {
-                System.out.println("이미 입력된 숫자입니다. 다른 숫자를 입력하세요.");
-                continue;
-            }
-
-            String s = compareAnswerAndInputNumForBaseballResult(digitCount, inputNumber);
-            System.out.println("결과: " +digitCount+ " "+ s);
-
-            if("스트라이크".equals(s)){
-                result.append(inputNumber);
-                if(digitCount==3) {
-                    System.out.println("정답: " + result.toString());
-                    break;
-                }
-                checkUsedNumberOfInupt.add(inputNumber);  // check를 위해 Set에 입력값 추가
-                digitCount++;
-            }
-        }
-    }
-
-
-    // 정규식을 사용하여 입력값 검사
-        // 유효 범위: 1 ~ 9
-    protected boolean isValidRangeByRegex(String inputStr) {
-        if (inputStr.isEmpty()) {
+    public boolean validateInput(String input) {
+        //  숫자만 포함되어 있는지 확인
+        if (!input.matches("\\d+")) {
+            System.out.println("올바르지 않은 입력값입니다. (숫자만 입력해주세요.)");
             return false;
         }
-        return inputStr.matches("^[1-9]$");
+
+        // 3자리 수인지 확인
+        if (input.length() != 3) {
+            System.out.println("올바르지 않은 입력값입니다. (3자리 수가 아닙니다.)");
+            return false;
+        }
+
+        // 중복된 숫자가 없는지 확인
+        HashSet<Character> uniqueDigits = new HashSet<>();
+        for (char c : input.toCharArray()) {
+            if (!uniqueDigits.add(c)) { // 중복된 숫자가 있으면 false 반환
+                System.out.println("올바르지 않은 입력값입니다. (중복된 숫자가 있습니다.)");
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    // 중복 검사
-    protected boolean isDuplicate(int number) {
-        if (checkUsedNumberOfInupt.contains(number)) {
-            return true;
+    public void handleMenuChoice(int menuChoice) {
+        switch (menuChoice) {
+            case 1:
+                startGame();
+                break;
+            case 2:
+                showGameRecords();
+                break;
+            case 3:
+                exitGame();
+                break;
+            default:
+                System.out.println("잘못된 선택입니다. 다시 시도해주세요.");
+                break;
         }
-        return false;
     }
 
 
     // 두 값 비교 ( 값, 자릿수)
-        // 1) 자리수, 값 동일       -> "스트라이크"
-        // 2) 자리수 다름, 값 동일   -> "볼"
-        // 3) 자리수, 값 다름       -> "아웃"
-    public String compareAnswerAndInputNumForBaseballResult(int digitCount, int inputNumber){
+    // 1) 자리수, 값 동일       -> "스트라이크"
+    // 2) 자리수 다름, 값 동일   -> "볼"
+    // 3) 자리수, 값 다름       -> "아웃"
+    public String compareAnswerAndInputNumForBaseballResult(int digit, int inputNumber){
         if(checkUsedNumberOfAnswer.contains(inputNumber)){
-            if(answer.get(digitCount-1) ==  inputNumber) {
-                return "스트라이크";
-            }
+            if(answer.get(digit) ==  inputNumber) return  "스트라이크";
             else return "볼";
         } else return "아웃";
     }
 
+    public void initCondition(){
+        checkUsedNumberOfAnswer.clear();
+        answer.clear();
+        generateRecursiveAnswer(1);
+    }
 
-//    private int countStrike(String input) {
-//
-//    }
-//
-//    private int countBall(String input) {
-//
-//    }
+    private void startGame() {
+        initCondition();
+
+//        System.out.println(answer.toString()); 정답 확인
+        System.out.println("< 게임을 시작합니다 >");
+
+
+        int strikeCnt = 0, ballCnt = 0, outCnt = 0;
+         while(strikeCnt<3) {
+             String inputStr = sc.next();
+
+             while(!validateInput(inputStr)){
+                 inputStr = sc.next();
+             }
+
+             for (int i = 0; i < inputStr.length(); i++) {
+                 int inputNumber = Character.getNumericValue(inputStr.charAt(i));
+                 String result = compareAnswerAndInputNumForBaseballResult(i, inputNumber);
+                 if(("스트라이크").equals(result)) {
+                     strikeCnt++;
+                 } else if (("볼").equals(result)){
+                     ballCnt++;
+                 } else if (("아웃").equals(result)) {
+                     outCnt++;
+                 }
+             }
+
+             if ( strikeCnt == 3){
+                 System.out.println("3 스트라이크! 정답입니다.");
+                 System.out.println();
+                 break;
+             }
+
+             System.out.println("스트라이크: " + strikeCnt + ", 볼: " + ballCnt +", 아웃: " + outCnt);
+
+             strikeCnt =0;
+             ballCnt=0;
+             outCnt=0;
+         }
+    }
+
+    private void exitGame() {
+        System.out.println("게임을 종료하시겠습니까? (Y/N)");
+        String response = sc.next();
+        if (response.equalsIgnoreCase("Y")) {
+            continueProgram = false; // 프로그램 종료
+        } else {
+            System.out.println("메뉴로 돌아갑니다.");
+        }
+    }
+
+    // TODO
+    private void showGameRecords() {
+    }
+
+
+
+    public void play(){
+
+        while (continueProgram) {
+            System.out.println("환영합니다! 원하시는 번호를 입력해주세요");
+
+            int menuChoice;
+            do {
+                System.out.println("1. 게임 시작하기 2. 게임 기록보기 3. 종료하기");
+                menuChoice = sc.nextInt();
+                handleMenuChoice(menuChoice);
+            } while (menuChoice < 1 || menuChoice > 3);
+        }
+        System.out.println("프로그램이 종료되었습니다.");
+    }
 }
