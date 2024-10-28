@@ -1,4 +1,6 @@
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class BaseballGame {
 
@@ -8,7 +10,6 @@ public class BaseballGame {
     private  int size = 3;
     private boolean continueProgram = true;
 
-    private final List<Integer>  answer = new ArrayList<>();
     private final Set<Integer>  checkUsedNumberOfAnswer = new HashSet<>();
 
 
@@ -17,21 +18,13 @@ public class BaseballGame {
         this.random = random;
     }
 
-    /**
-     *  Answer 생성: 재귀 구현
-     *    종료 조건: cnt > size
-     */
-    private void generateRecursiveAnswer(int cnt){
-        if(cnt > size) return;
-        while(true){
-            int randomNumber = random.nextInt(9) + 1;
-            if(!checkUsedNumberOfAnswer.contains(randomNumber)){
-                checkUsedNumberOfAnswer.add(randomNumber);
-                answer.add(randomNumber);
-                generateRecursiveAnswer(cnt+1);
-                break;
-            }
-        }
+    // Answer 생성
+    private void generateAnswer() {
+        List<Integer> numbers = IntStream.rangeClosed(1, 9)
+                .boxed()
+                .collect(Collectors.toList());
+        Collections.shuffle(numbers);
+        answer = numbers.subList(0, size);
     }
 
     private boolean validateInput(String input) {
@@ -81,7 +74,7 @@ public class BaseballGame {
     // 2) 자리수 다름, 값 동일   -> "볼"
     // 3) 자리수, 값 다름       -> "아웃"
     private BaseballEventEnum compareAnswerAndInputNumForBaseballResult(int digit, int inputNumber){
-        if(checkUsedNumberOfAnswer.contains(inputNumber)){
+        if(answer.contains(inputNumber)){
             if(answer.get(digit) ==  inputNumber) return  BaseballEventEnum.STRIKE;
             else return BaseballEventEnum.BALL;
         } else return BaseballEventEnum.OUT;
@@ -89,16 +82,15 @@ public class BaseballGame {
 
     // 초기 값 설정
     private void initCondition(){
-        checkUsedNumberOfAnswer.clear();
-        answer.clear();
-        generateRecursiveAnswer(1);
+        if(answer!= null) answer.clear();
+        generateAnswer();
     }
 
     // 게임 시작
     private void startGame(){
         initCondition();
 
-//        System.out.println(answer.toString()); 정답 확인
+        System.out.println(answer.toString()); // 정답 확인
         System.out.println("< 게임을 시작합니다 >");
 
         int strikeCnt = 0, ballCnt = 0, outCnt = 0;
