@@ -7,7 +7,7 @@ public class BaseballGame {
     private Scanner sc;
     private Random random;
 
-    private  int size = 3;
+    private  int size  = 3;
     private boolean continueProgram = true;
 
     private List<Integer>  answer;
@@ -35,9 +35,9 @@ public class BaseballGame {
             return false;
         }
 
-        // 3자리 수인지 확인
-        if (input.length() != 3) {
-            System.out.println("올바르지 않은 입력값입니다. (3자리 수가 아닙니다.)");
+        // 입력 받은 자리수 인지 확인
+        if (input.length() != size) {
+            System.out.println("올바르지 않은 입력값입니다. ( "+ size +" 자리 수가 아닙니다. )");
             return false;
         }
 
@@ -54,6 +54,9 @@ public class BaseballGame {
 
     private void handleMenuChoice(int menuChoice) {
         switch (menuChoice) {
+            case 0:
+                setAnswerDigit();
+                break;
             case 1:
                 startGame();
                 break;
@@ -68,6 +71,7 @@ public class BaseballGame {
                 break;
         }
     }
+
 
 
     // 두 값 비교 ( 값, 자릿수)
@@ -87,15 +91,30 @@ public class BaseballGame {
         generateAnswer();
     }
 
+    // 자리수 설정
+    private void setAnswerDigit() {
+        System.out.println("설정하고자 하는 자리수를 입력하세요.");
+        int inputInt  = sc.nextInt();;
+        while(inputInt>5 || inputInt < 3){
+            System.out.println("잘못된 입력입니다. 3 ~ 5 자리수 중 선택해 주세요.");
+            sc.nextInt();
+        }
+        this.size = inputInt;
+
+        System.out.println(inputInt + " 자리수 난이도로 설정 되었습니다.");
+        System.out.println();
+        this.startGame();
+    }
+
+
     // 게임 시작
     private void startGame(){
         initCondition();
-
-        System.out.println(answer.toString()); // 정답 확인
+//         System.out.println(answer.toString()); // 정답 확인
         System.out.println("< 게임을 시작합니다 >");
 
         int strikeCnt = 0, ballCnt = 0, outCnt = 0, tryCnt = 0;
-        while(strikeCnt<3) {
+        while(strikeCnt<size) {
             tryCnt++;
             String inputStr = sc.next();
 
@@ -116,9 +135,9 @@ public class BaseballGame {
                 }
             }
 
-            if ( strikeCnt == 3){
+            if ( strikeCnt == this.size ){
                 recordTryCount.add(tryCnt);
-                System.out.println("3 스트라이크! 정답입니다.");
+                System.out.println(this.size + " 스트라이크! 정답입니다.");
                 System.out.println();
                 break;
             }
@@ -141,7 +160,6 @@ public class BaseballGame {
         }
     }
 
-    // TODO
     private void showGameRecords() {
         if(recordTryCount.isEmpty()) {
             System.out.println("기록된 게임이 없습니다. 게임을 시작 해주세요!");
@@ -154,17 +172,16 @@ public class BaseballGame {
     }
 
     public void play(){
-
         while (continueProgram) {
             System.out.println();
             System.out.println("환영합니다! 원하시는 번호를 입력해주세요");
 
             int menuChoice;
             do {
-                System.out.println("1. 게임 시작하기 2. 게임 기록보기 3. 종료하기");
+                System.out.println("0. 자리수 설정 1. 게임 시작하기 2. 게임 기록보기 3. 종료하기");
                 menuChoice = sc.nextInt();
                 handleMenuChoice(menuChoice);
-            } while (menuChoice < 1 || menuChoice > 3);
+            } while (menuChoice < 0 || menuChoice > 3);
         }
 
         System.out.println("< 숫자 야구 게임을 종료합니다 >");
