@@ -10,7 +10,8 @@ public class BaseballGame {
     private  int size = 3;
     private boolean continueProgram = true;
 
-    private final Set<Integer>  checkUsedNumberOfAnswer = new HashSet<>();
+    private List<Integer>  answer;
+    private List<Integer> recordTryCount = new ArrayList<>();
 
 
     public BaseballGame(Scanner sc , Random random) {
@@ -93,8 +94,9 @@ public class BaseballGame {
         System.out.println(answer.toString()); // 정답 확인
         System.out.println("< 게임을 시작합니다 >");
 
-        int strikeCnt = 0, ballCnt = 0, outCnt = 0;
+        int strikeCnt = 0, ballCnt = 0, outCnt = 0, tryCnt = 0;
         while(strikeCnt<3) {
+            tryCnt++;
             String inputStr = sc.next();
 
             while(!validateInput(inputStr)){
@@ -115,6 +117,7 @@ public class BaseballGame {
             }
 
             if ( strikeCnt == 3){
+                recordTryCount.add(tryCnt);
                 System.out.println("3 스트라이크! 정답입니다.");
                 System.out.println();
                 break;
@@ -140,11 +143,20 @@ public class BaseballGame {
 
     // TODO
     private void showGameRecords() {
+        if(recordTryCount.isEmpty()) {
+            System.out.println("기록된 게임이 없습니다. 게임을 시작 해주세요!");
+            return;
+        }
+
+        for (int i = 0; i < this.recordTryCount.size(); i++) {
+            System.out.println(i+1 + "번째 게임 : 시도 횟수 - " + recordTryCount.get(i));
+        }
     }
 
     public void play(){
 
         while (continueProgram) {
+            System.out.println();
             System.out.println("환영합니다! 원하시는 번호를 입력해주세요");
 
             int menuChoice;
@@ -155,6 +167,6 @@ public class BaseballGame {
             } while (menuChoice < 1 || menuChoice > 3);
         }
 
-        System.out.println("프로그램이 종료되었습니다.");
+        System.out.println("< 숫자 야구 게임을 종료합니다 >");
     }
 }
