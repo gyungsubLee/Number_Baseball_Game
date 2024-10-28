@@ -1,5 +1,3 @@
-package Lv1;
-
 import java.util.*;
 
 public class BaseballGame {
@@ -7,12 +5,10 @@ public class BaseballGame {
     private Scanner sc;
     private Random random;
 
-    static StringBuilder result = new StringBuilder();
-
     private  int size = 3;
     private boolean continueProgram = true;
 
-    static List<Integer>  answer = new ArrayList<>();
+    private final List<Integer>  answer = new ArrayList<>();
     private final Set<Integer>  checkUsedNumberOfAnswer = new HashSet<>();
 
 
@@ -24,7 +20,8 @@ public class BaseballGame {
     /**
      *  Answer 생성: 재귀 구현
      *    종료 조건: cnt > size
-     */private void generateRecursiveAnswer(int cnt){
+     */
+    private void generateRecursiveAnswer(int cnt){
         if(cnt > size) return;
         while(true){
             int randomNumber = random.nextInt(9) + 1;
@@ -37,7 +34,7 @@ public class BaseballGame {
         }
     }
 
-    public boolean validateInput(String input) {
+    private boolean validateInput(String input) {
         //  숫자만 포함되어 있는지 확인
         if (!input.matches("\\d+")) {
             System.out.println("올바르지 않은 입력값입니다. (숫자만 입력해주세요.)");
@@ -51,18 +48,17 @@ public class BaseballGame {
         }
 
         // 중복된 숫자가 없는지 확인
-        HashSet<Character> uniqueDigits = new HashSet<>();
+        Set<Character> uniqueDigits = new HashSet<>();
         for (char c : input.toCharArray()) {
             if (!uniqueDigits.add(c)) { // 중복된 숫자가 있으면 false 반환
                 System.out.println("올바르지 않은 입력값입니다. (중복된 숫자가 있습니다.)");
                 return false;
             }
         }
-
         return true;
     }
 
-    public void handleMenuChoice(int menuChoice) {
+    private void handleMenuChoice(int menuChoice) {
         switch (menuChoice) {
             case 1:
                 startGame();
@@ -84,58 +80,60 @@ public class BaseballGame {
     // 1) 자리수, 값 동일       -> "스트라이크"
     // 2) 자리수 다름, 값 동일   -> "볼"
     // 3) 자리수, 값 다름       -> "아웃"
-    public String compareAnswerAndInputNumForBaseballResult(int digit, int inputNumber){
+    private BaseballEventEnum compareAnswerAndInputNumForBaseballResult(int digit, int inputNumber){
         if(checkUsedNumberOfAnswer.contains(inputNumber)){
-            if(answer.get(digit) ==  inputNumber) return  "스트라이크";
-            else return "볼";
-        } else return "아웃";
+            if(answer.get(digit) ==  inputNumber) return  BaseballEventEnum.STRIKE;
+            else return BaseballEventEnum.BALL;
+        } else return BaseballEventEnum.OUT;
     }
 
-    public void initCondition(){
+    // 초기 값 설정
+    private void initCondition(){
         checkUsedNumberOfAnswer.clear();
         answer.clear();
         generateRecursiveAnswer(1);
     }
 
-    private void startGame() {
+    // 게임 시작
+    private void startGame(){
         initCondition();
 
 //        System.out.println(answer.toString()); 정답 확인
         System.out.println("< 게임을 시작합니다 >");
 
-
         int strikeCnt = 0, ballCnt = 0, outCnt = 0;
-         while(strikeCnt<3) {
-             String inputStr = sc.next();
+        while(strikeCnt<3) {
+            String inputStr = sc.next();
 
-             while(!validateInput(inputStr)){
-                 inputStr = sc.next();
-             }
+            while(!validateInput(inputStr)){
+                inputStr = sc.next();
+            }
 
-             for (int i = 0; i < inputStr.length(); i++) {
-                 int inputNumber = Character.getNumericValue(inputStr.charAt(i));
-                 String result = compareAnswerAndInputNumForBaseballResult(i, inputNumber);
-                 if(("스트라이크").equals(result)) {
-                     strikeCnt++;
-                 } else if (("볼").equals(result)){
-                     ballCnt++;
-                 } else if (("아웃").equals(result)) {
-                     outCnt++;
-                 }
-             }
+            for (int i = 0; i < inputStr.length(); i++) {
+                int inputNumber = Character.getNumericValue(inputStr.charAt(i));
+                BaseballEventEnum result = compareAnswerAndInputNumForBaseballResult(i, inputNumber);
 
-             if ( strikeCnt == 3){
-                 System.out.println("3 스트라이크! 정답입니다.");
-                 System.out.println();
-                 break;
-             }
+                if((BaseballEventEnum.STRIKE).equals(result)) {
+                    strikeCnt++;
+                } else if ((BaseballEventEnum.BALL).equals(result)){
+                    ballCnt++;
+                } else if ((BaseballEventEnum.OUT).equals(result)) {
+                    outCnt++;
+                }
+            }
 
-             System.out.println("스트라이크: " + strikeCnt + ", 볼: " + ballCnt +", 아웃: " + outCnt);
+            if ( strikeCnt == 3){
+                System.out.println("3 스트라이크! 정답입니다.");
+                System.out.println();
+                break;
+            }
 
-             strikeCnt =0;
-             ballCnt=0;
-             outCnt=0;
-         }
+            System.out.println("스트라이크: " + strikeCnt + ", 볼: " + ballCnt +", 아웃: " + outCnt);
+
+            strikeCnt =0;
+            ballCnt=0;
+            outCnt=0;
+        }
     }
 
     private void exitGame() {
@@ -152,8 +150,6 @@ public class BaseballGame {
     private void showGameRecords() {
     }
 
-
-
     public void play(){
 
         while (continueProgram) {
@@ -166,6 +162,7 @@ public class BaseballGame {
                 handleMenuChoice(menuChoice);
             } while (menuChoice < 1 || menuChoice > 3);
         }
+
         System.out.println("프로그램이 종료되었습니다.");
     }
 }

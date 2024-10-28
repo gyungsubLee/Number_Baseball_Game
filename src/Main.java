@@ -1,5 +1,3 @@
-package Lv1;
-
 import java.util.*;
 
 public class Main {
@@ -12,7 +10,5 @@ public class Main {
         // Lv1.BaseballGame 객체 생성 & 게임 시작
         BaseballGame baseballGame = new BaseballGame(scanner, random);
         baseballGame.play();
-
-
     }
 }
